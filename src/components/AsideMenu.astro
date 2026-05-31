@@ -1,0 +1,90 @@
+---
+// Importa el ícono de biblioteca.
+import LibraryIcon from '../icons/Library.astro'
+
+// Importa el ícono de inicio/home.
+import HomeIcon from '../icons/Home.astro'
+
+// Importa el ícono de búsqueda.
+import SearchIcon from '../icons/Search.astro'
+
+// Importa un componente reutilizable para items del menú lateral.
+import SideMenuItem from './SideMenuItem.astro'
+
+// Importa una card/componente para mostrar playlists.
+import SideMenuCard from './SideMenuCard.astro'
+
+// Importa las playlists desde data.ts
+// Estas playlists se usarán para renderizar el menú.
+import { playlists } from '../lib/data';
+---
+
+<!--
+    nav = contenedor principal del menú lateral.
+    
+    Tailwind:
+    flex flex-col -> layout vertical
+    flex-1 -> ocupa espacio disponible
+    gap-2 -> separación entre bloques
+-->
+<nav class="flex flex-col flex-1 gap-2">
+
+    <!--
+        Primer bloque del sidebar.
+        Contiene Home y Search.
+    -->
+    <div class="bg-zinc-900 rounded-lg p-2">
+
+        <!-- Lista del menú -->
+        <ul>
+
+            <!-- Item Home -->
+            <SideMenuItem href="/">
+                <HomeIcon />
+                Home
+            </SideMenuItem>
+
+            <!-- Item Search -->
+            <SideMenuItem href="/#">
+                <SearchIcon />
+                Search
+            </SideMenuItem>
+
+        </ul>
+    </div>
+
+    <!--
+        Segundo bloque del sidebar.
+        Contiene la biblioteca y playlists.
+    -->
+    <div class="bg-zinc-900 rounded-lg p-2 flex-1">
+
+        <ul>
+
+            <!-- Item My Library -->
+            <SideMenuItem href="/">
+                <LibraryIcon/>
+                My Library
+            </SideMenuItem>
+
+            <!--
+                playlists.map(...)
+                
+                Recorre todas las playlists importadas desde data.ts
+                
+                Por cada playlist:
+                - crea un SideMenuCard
+                - le pasa la playlist como prop
+                
+                Esto genera automáticamente todas las cards.
+            -->
+            {
+                playlists.map(playlist => 
+                    <SideMenuCard playlist={playlist}/>
+                )
+            }
+
+        </ul>
+    </div>
+
+</nav>

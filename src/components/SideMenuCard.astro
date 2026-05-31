@@ -1,0 +1,78 @@
+---
+
+// Importa el tipo Playlist desde data.ts.
+//
+// Solo se usa para TypeScript.
+// Ayuda a validar la estructura de playlist.
+import type { Playlist } from "../lib/data";
+
+// Interface de props.
+//
+// Este componente espera recibir:
+// playlist -> una playlist completa.
+interface Props {
+    playlist: Playlist
+
+}
+
+// Obtiene la playlist enviada al componente.
+const { playlist } = Astro.props
+
+// Extrae propiedades de playlist.
+const { id, cover, title, artists, } = playlist
+
+// Convierte el array de artistas a string.
+//
+// Ejemplo:
+// ["A", "B"] -> "A, B"
+const artistsString = artists.join(", ")
+
+---
+
+<!--
+    Link hacia la página de playlist.
+    
+    Ejemplo:
+    /playlist/1
+-->
+<a href={`/playlist/${id}`}
+    class="playlist-item flex relative p-2 overflow-hidden items-center gap-5 rounded-md hover:bg-zinc-800"
+>
+
+    <!--
+        Contenedor de portada.
+        
+        h-12 w-12:
+        tamaño fijo.
+    -->
+    <picture class="h-12 w-12 flex-none">
+
+        <!-- Imagen portada -->
+        <img 
+            src={cover}
+            alt={`Cover of ${title} by ${artistsString}`}
+            class="object-cover w-full h-full rounded-md"
+        />
+
+    </picture>
+
+    <!--
+        Información textual.
+        
+        truncate:
+        corta texto largo.
+    -->
+    <div class="flex flex-auto flex-col truncate">
+
+        <!-- Título playlist -->
+        <h4 class="text-white">
+            {title}
+        </h4>
+
+        <!-- Artistas -->
+        <span class="text-sm text-gray-400">
+            {artistsString}
+        </span>
+
+    </div>
+</a>

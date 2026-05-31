@@ -1,0 +1,320 @@
+---
+
+// Importa el layout principal.
+//
+// Este layout contiene:
+// - sidebar
+// - reproductor
+// - estructura principal
+import Layout from '../../layouts/Layout.astro';
+
+
+// Importa card visual de playlist.
+import PlayListItemCard from "../../components/PlayListItemCard.astro"
+
+
+// Importa:
+// - playlists
+// - canciones
+//
+// desde data.ts
+import {
+    allPlaylists,
+    songs
+
+} from "../../lib/data";
+
+
+// Importa tabla de canciones.
+import MusicsTable from '../../components/MusicsTable.astro';
+
+
+// Importa botón Play/Pause React.
+import { CardPlayButton } from '../../components/CardPlayButton';
+
+
+
+/* =========================================================
+   PARÁMETROS DINÁMICOS
+========================================================= */
+
+// Astro.params obtiene parámetros de la URL.
+//
+// Este archivo:
+// [id].astro
+//
+// genera rutas dinámicas.
+//
+// Ejemplo:
+// /playlist/1
+//
+// resultado:
+// id = "1"
+const { id } = Astro.params
+
+
+
+/* =========================================================
+   BUSCAR PLAYLIST
+========================================================= */
+
+// Busca playlist según ID.
+const playlist = allPlaylists.find(
+    playlist => playlist.id == id
+)
+
+
+
+/* =========================================================
+   BUSCAR CANCIONES
+========================================================= */
+
+// Filtra canciones pertenecientes
+// a la playlist actual.
+const playListSongs = songs.filter(
+    song => song.albumId == playlist?.albumId
+)
+
+---
+
+
+
+
+<!-- =====================================================
+     LAYOUT PRINCIPAL
+===================================================== -->
+
+<Layout title="JSMusic">
+
+    <!--
+        Contenedor principal playlist.
+        
+        transition:name:
+        usado por Astro View Transitions.
+    -->
+    <div
+        id="playlist-container"
+
+        class="
+            relative
+            flex
+            flex-col
+            h-full
+            bg-zinc-900
+            overflow-x-hidden
+        "
+
+        transition:name=`playlist ${id} box`
+    >
+
+
+
+        <!-- =================================================
+             HEADER
+        ================================================= -->
+
+        <!--
+            Cabecera playlist.
+            
+            Contiene:
+            - portada
+            - título
+            - artistas
+            - info
+        -->
+        <header class="
+            flex
+            flex-row
+            gap-8
+            px-6
+            mt-10
+        ">
+
+
+            <!-- =============================================
+                 PORTADA
+            ============================================== -->
+
+            <picture class="
+                aspect-square
+                w-52
+                h-52
+                flex-none
+            ">
+
+                <img 
+                    src={playlist?.cover}
+
+                    alt={`Cover of ${playlist?.title}`}
+
+                    class="
+                        object-cover
+                        w-full
+                        h-full
+                        shadow-lg
+                    "
+
+                    transition:name=`
+                        playlist ${playlist?.id} image
+                    `
+                />
+
+            </picture>
+
+
+
+            <!-- =============================================
+                 INFORMACIÓN
+            ============================================== -->
+
+            <div class="flex flex-col justify-between">
+
+
+                <!-- Tipo -->
+                <h2 class="flex flex-1 items-end">
+                    Playlist
+                </h2>
+
+
+
+                <!-- Título -->
+                <div>
+
+                    <h1 class="
+                        text-5xl
+                        font-bold
+                        block
+                        text-white
+                    ">
+
+                        {playlist?.title}
+
+                        <!--
+                            Elemento usado para transición.
+                        -->
+                        <span
+                            transition:name=`
+                                playlist ${playlist?.id} title
+                            `
+                        ></span>
+
+                    </h1>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     ARTISTAS E INFO
+                ========================================== -->
+
+                <div class="flex flex-1 items-end">
+
+                    <div class="
+                        text-sm
+                        text-gray-300
+                        font-normal
+                    ">
+
+                        <!-- Artistas -->
+                        <div
+                            transition:name=`
+                                playlist ${playlist?.id} artists
+                            `
+                        >
+
+                            <span>
+                                {playlist?.artists.join(", ")}
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- Cantidad canciones -->
+                        <p class="mt-1">
+
+                            <span class="text-white">
+                                {playListSongs.length}
+                            </span>
+
+                            , 3 h aproximadamente
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             BOTÓN PLAY
+        ================================================= -->
+
+        <div class="pl-6 pt-6">
+
+            <!--
+                client:load
+                
+                Hidrata inmediatamente en cliente.
+            -->
+            <CardPlayButton
+                id={id}
+                client:load
+                size="large"
+            />
+
+        </div>
+
+
+
+        <!-- =================================================
+             EFECTOS VISUALES
+        ================================================= -->
+
+        <!-- Espaciado -->
+        <div class="relative z-10 px-6 pt-10" />
+
+
+        <!-- Gradiente fondo -->
+        <div class="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-zinc-900
+            via-zinc-900/80
+            -z-10
+        " />
+
+
+
+        <!-- =================================================
+             TABLA DE CANCIONES
+        ================================================= -->
+
+        <section class="
+            flex
+            flex-col
+            gap-6
+            px-6
+            mt-10
+        ">
+
+            <!--
+                Tabla de canciones.
+                
+                Recibe:
+                playListSongs
+            -->
+            <MusicsTable songs={playListSongs} />
+
+        </section>
+
+    </div>
+
+</Layout>

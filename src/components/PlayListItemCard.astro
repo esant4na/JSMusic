@@ -1,0 +1,113 @@
+---
+// Importa el tipo Playlist desde data.ts.
+//
+// Se usa para TypeScript.
+// Ayuda a validar la estructura de playlist.
+import type { Playlist } from "../lib/data"
+
+// Importa el botón Play/Pause.
+import { CardPlayButton } from "../components/CardPlayButton"
+
+// Interface de las props del componente.
+//
+// Este componente espera:
+// playlist -> una playlist completa.
+interface Props {
+    playlist: Playlist
+
+}
+
+// Obtiene la playlist enviada al componente.
+const { playlist } = Astro.props
+
+// Extrae propiedades de la playlist.
+const { id, cover, title, artists, /*color*/} = playlist
+
+// Convierte el array de artistas en string.
+//
+// Ejemplo:
+// ["A", "B"] -> "A, B"
+const artistsString = artists.join(", ")
+
+---
+
+<!--
+    Card principal de playlist.
+    
+    group:
+    permite aplicar efectos hover a hijos.
+-->
+<article class="group relative hover:bg-zinc-800 shadow-lg hover:shadow-xl bg-zinc-500/30 rounded-md
+                transition-all duration-300">
+
+    <!--
+        Contenedor del botón Play.
+        
+        Inicialmente:
+        - invisible
+        - desplazado
+        
+        Al hover:
+        - aparece
+        - sube
+    -->                    
+    <div class=`absolute right-4 bottom-25 translate-y-4 transition-all duration-500
+                opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-10`>
+
+        <!--
+            client:visible
+            
+            Indica que el componente React
+            se hidratará cuando sea visible.
+            
+            Astro envía este componente al cliente.
+        -->                
+        <CardPlayButton id={id} client:visible />
+    </div>
+
+
+    <!--
+        Link hacia la página de playlist.
+        
+        Ejemplo:
+        /playlist/1
+    -->
+    <a href={`/playlist/${id}`}
+        class="playlist-item transition-all duration-300 flex relative p-2 overflow-hidden
+        items-center gap-5 rounded-md w-36 flex-col"
+        transition:name=`playlist ${id} box`
+    >
+        <!--
+            transition:name
+            
+            View Transitions de Astro.
+            Permite animaciones entre páginas.
+        -->
+
+        <!-- Portada -->
+        <picture class="aspect-square w-full h-auto flex-none">
+            <img 
+                src={cover}
+                alt={`Cover of ${title} by ${artistsString}`}
+                class="object-cover w-full h-full rounded-md"
+                transition:name=`playlist ${id} image`
+            />
+
+        </picture>
+
+        <!-- Información -->
+        <div class="flex flex-auto flex-col px-2">
+
+            <!-- Título -->
+            <h4 class="text-white" transition:name=`playlist ${playlist?.id} title`>
+                {title}
+            </h4>
+
+            <!-- Artistas -->
+            <span class="text-sm text-gray-400" transition:name=`playlist ${id} artists`>
+                {artistsString}
+            </span>
+
+        </div>
+    </a>
+</article>

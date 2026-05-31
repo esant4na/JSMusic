@@ -1,0 +1,60 @@
+---
+
+// Interface de props.
+//
+// Este componente acepta:
+//
+// href -> link opcional.
+interface Props {
+    href?: string;
+}
+
+// Obtiene el href enviado al componente.
+const {href} = Astro.props
+
+---
+
+
+<!--
+    Elemento de lista.
+    
+    Este componente representa
+    un item del menú lateral.
+-->
+<li>
+    
+    <!--
+        Link del item.
+        
+        href={href}
+        usa la prop recibida.
+        
+        Tailwind:
+        
+        flex -> layout flexible
+        gap-4 -> espacio entre icono y texto
+        text-zinc-400 -> color gris
+        hover:text-zinc-100 -> color claro al hover
+        items-center -> centra verticalmente
+        py-3 -> padding vertical
+    -->
+    <a class="flex gap-4 text-zinc-400 hover:text-zinc-100 items-center py-3" href={href}>
+
+        <!--
+            <slot />
+            
+            Slot de Astro.
+            
+            Permite insertar contenido
+            desde el componente padre.
+            
+            Ejemplo:
+            
+            <SideMenuItem>
+                <HomeIcon />
+                Home
+            </SideMenuItem>
+        -->
+        <slot />
+    </a>
+</li>

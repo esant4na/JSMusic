@@ -1,0 +1,265 @@
+---
+
+// Importa estilos globales CSS.
+//
+// Se aplican a TODA la aplicación.
+import './src/styles/global.css'
+
+
+// Importa el componente AsideMenu.
+//
+// Este componente representa el sidebar lateral.
+import AsideMenu from '../components/AsideMenu.astro'
+
+
+// Importa un ícono Play.
+//
+// En este archivo realmente no se usa,
+// probablemente puede eliminarse.
+import Play from '../icons/Play.astro'
+
+
+// Importa ClientRouter desde Astro.
+//
+// Sirve para navegación con transiciones
+// entre páginas sin recarga completa.
+import { ClientRouter } from 'astro:transitions';
+
+
+// Importa el reproductor principal.
+import { Player } from '../components/Player'
+
+
+
+// Interface de props.
+//
+// Este layout espera recibir:
+// title -> título de la página.
+interface Props{
+	title : string
+}
+
+
+// Obtiene el título desde Astro.props.
+const { title } = Astro.props
+
+---
+
+
+
+<!doctype html>
+
+<!--
+    Documento HTML principal.
+-->
+<html lang="en">
+
+	<head>
+
+		<!-- Codificación UTF-8 -->
+		<meta charset="UTF-8" />
+
+
+		<!-- Responsive -->
+		<meta
+			name="viewport"
+			content="width=device-width"
+		/>
+
+
+		<!-- Favicon -->
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="/favicon.svg"
+		/>
+
+
+		<!-- Generador Astro -->
+		<meta
+			name="generator"
+			content={Astro.generator}
+		/>
+
+
+		<!-- Título dinámico -->
+		<title>{title}</title>
+
+
+		<!--
+			ClientRouter
+			
+			Activa navegación SPA-like
+			con transiciones Astro.
+			
+			fallback="none"
+			evita fallback automático.
+		-->
+		<ClientRouter fallback="none"/>
+
+	</head> 
+
+
+
+	<body>
+
+		<!--
+			Contenedor principal de la app.
+			
+			Usa CSS Grid.
+		-->
+		<div
+			id="app"
+
+			class="
+				relative
+				h-screen
+				p-2
+				gap-2
+			"
+		>
+
+			<!-- =================================================
+			     SIDEBAR
+			================================================= -->
+
+			<aside class="
+				[grid-area:aside]
+				flex-col
+				flex
+				overflow-y-auto
+			">
+
+				<!-- Menú lateral -->
+				<AsideMenu />
+
+			</aside>
+
+
+
+			<!-- =================================================
+			     MAIN CONTENT
+			================================================= -->
+
+			<main class="
+				[grid-area:main]
+				rounded-lg
+				bg-zinc-900
+				overflow-y-auto
+			">
+
+				<!--
+					<slot />
+					
+					Aquí se renderiza el contenido
+					de cada página.
+				-->
+				<slot />
+
+			</main>
+
+
+
+			<!-- =================================================
+			     PLAYER
+			================================================= -->
+
+			<footer class="[grid-area:player]">
+
+				<!--
+					Player React.
+					
+					client:load
+					hidrata inmediatamente en cliente.
+					
+					transition:name
+					identificador de transición.
+					
+					transition:persist
+					mantiene el reproductor entre páginas.
+				-->
+				<Player
+					client:load
+					transition:name="media-player"
+					transition:persist
+				/>
+
+			</footer>
+
+		</div>
+
+	</body>
+
+</html>
+
+
+
+<!-- =====================================================
+     GRID LAYOUT
+===================================================== -->
+
+<style> 
+
+	/*
+		Define estructura principal de la app.
+	*/
+	#app{
+
+		display: grid;
+
+		/*
+			Áreas del grid:
+			
+			main   -> contenido
+			aside  -> sidebar
+			player -> reproductor
+		*/
+		grid-template-areas: 
+			"main main aside"
+			"player player player";
+
+		/*
+			Columnas:
+			
+			350px sidebar
+			1fr contenido
+		*/
+		grid-template-columns: 350px 1fr;
+
+
+		/*
+			Filas:
+			
+			1fr  -> contenido ocupa espacio
+			auto -> player tamaño automático
+		*/
+		grid-template-rows: 1fr auto;
+	}
+
+</style>
+
+
+
+<!-- =====================================================
+     ESTILOS GLOBALES
+===================================================== -->
+
+<style>
+
+	/*
+		Estilos base HTML/BODY
+	*/
+	html,
+	body {
+
+		margin: 0;
+
+		width: 100%;
+		height: 100%;
+
+		background: #000;
+
+		color: white;
+	}
+
+</style>

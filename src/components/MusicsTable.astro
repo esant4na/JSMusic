@@ -1,0 +1,155 @@
+---
+
+// Importa el ícono de tiempo/reloj.
+import Time from '../icons/Time.astro'
+
+// Importa el tipo Song desde data.ts.
+//
+// "type Song" se usa solamente para TypeScript.
+// Sirve para validar cómo debe ser una canción.
+import { type Song } from '../lib/data'
+
+
+// Interface de las props del componente.
+//
+// Este componente espera recibir:
+// songs -> array de canciones.
+interface Props {
+  songs: Song[]
+}
+
+
+// Obtiene las props enviadas al componente.
+//
+// Astro.props contiene los datos recibidos.
+//
+// Ejemplo:
+// <MusicsTable songs={songs} />
+const { songs } = Astro.props
+---
+
+
+<!--
+    Tabla principal de canciones.
+    
+    Tailwind:
+    table-auto -> tamaño automático
+    text-left -> texto alineado izquierda
+    divide-y -> líneas entre filas
+-->
+<table class="table-auto text-left main-w-full divide-y divide-gray-500/20">
+
+    <!-- Cabecera de la tabla -->
+    <thead>
+
+        <tr class="text-zinc-400 text-sm">
+
+            <!-- Número de canción -->
+            <th class="px-4 py-2 font-light">#</th>
+
+            <!-- Título -->
+            <th class="px-4 py-2 font-light">Title</th>
+
+            <!-- Álbum -->
+            <th class="px-4 py-2 font-light">Album</th>
+
+            <!-- Duración -->
+            <th class="px-4 py-2 font-light">
+
+                <!-- Ícono de tiempo -->
+                <Time />
+
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <!-- Cuerpo de la tabla -->
+    <tbody>
+
+        {songs.map((song, index) => (
+
+        // Recorre todas las canciones.
+        //
+        // song -> canción actual
+        // index -> posición en el array
+        //
+        // Cada canción genera una fila <tr>
+
+        <tr class="
+            text-gray-300
+            text-sm
+            font-light
+            hover:bg-white/10
+            rounded-lg
+            overflow-hidden
+        ">
+
+            <!-- Número de canción -->
+            <td class="px-4 py-2 rounded-tl-lg rounded-bl-lg w-5">
+
+                {/* index + 1 porque los arrays empiezan en 0 */}
+                {index + 1}
+
+            </td>
+
+
+            <!-- Información principal -->
+            <td class="px-4 py-2 flex gap-3">
+
+                <!-- Imagen de la canción -->
+                <picture>
+
+                    <img 
+                        src={song.image} 
+                        alt={song.title}
+
+                        class="w-10 h-10" 
+                    />
+
+                </picture>
+
+
+                <!-- Datos de texto -->
+                <div class="flex flex-col">
+
+                    <!-- Título -->
+                    <h3 class="text-white text-base font-normal">
+                        {song.title}
+                    </h3>
+
+                    <!-- Artistas -->
+                    <span>
+
+                        {/* join(',') une el array con comas */}
+                        {song.artists.join(',')}
+
+                    </span>
+
+                </div>
+
+            </td>
+
+
+            <!-- Nombre del álbum -->
+            <td class="px-4 py-2">
+                {song.album}
+            </td>
+
+
+            <!-- Duración -->
+            <td class="px-4 py-2 rounded-tr-lg rounded-br-lg">
+
+                {song.duration}
+
+            </td>
+
+        </tr>
+
+        ))}
+
+    </tbody>
+
+</table>
