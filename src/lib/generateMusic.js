@@ -5,89 +5,184 @@ import { parseFile } from "music-metadata";
 const MUSIC_DIR = "./public/music";
 const OUTPUT = "./src/lib/music.ts";
 
-const songs = [];
 const playlists = [];
+const songs = [];
 
 let albumId = 1;
 
-// carpetas principales
-const categories = ["free", "private"];
+const categories = ["private", "free"];
 
 for (const category of categories) {
 
   const categoryPath = path.join(MUSIC_DIR, category);
 
-  // si la carpeta no existe, la salta
-  // ejemplo: en github probablemente no exista private
   if (!fs.existsSync(categoryPath)) continue;
 
-  // albums dentro de free/ o private/
-  const folders = fs.readdirSync(categoryPath);
+  // artistas
+  const artistsFolders = fs.readdirSync(categoryPath);
 
-  for (const folder of folders) {
+  for (const artistFolder of artistsFolders) {
 
-    const folderPath = path.join(categoryPath, folder);
-
-    if (!fs.statSync(folderPath).isDirectory()) continue;
-
-    const files = fs
-      .readdirSync(folderPath)
-      .filter(file => file.endsWith(".mp3"));
-
-    if (files.length === 0) continue;
-
-    const firstSong = await parseFile(
-      path.join(folderPath, files[0])
+    const artistPath = path.join(
+      categoryPath,
+      artistFolder
     );
 
-    playlists.push({
-      id: albumId.toString(),
-      albumId,
-      title: firstSong.common.album || folder,
-      cover: `/covers/${albumId}.jpg`,
-      artists: firstSong.common.artists || [],
-    });
+    if (!fs.statSync(artistPath).isDirectory()) continue;
 
-    let songId = 1;
+    // albums
+    const albumFolders = fs.readdirSync(artistPath);
 
-    for (const file of files) {
+    for (const albumFolder of albumFolders) {
 
-      const metadata = await parseFile(
-        path.join(folderPath, file)
+      const albumPath = path.join(
+        artistPath,
+        albumFolder
       );
 
-      songs.push({
-        id: songId,
+      if (!fs.statSync(albumPath).isDirectory()) continue;
+
+      // mp3 files
+      const files = fs
+        .readdirSync(albumPath)
+        .filter(file =>
+          file.toLowerCase().endsWith(".mp3")
+        );
+
+      if (files.length === 0) continue;
+
+      // detecta portada
+      let coverFile =
+        fs.readdirSync(albumPath)
+          .find(file =>
+            file.startsWith("cover.")
+          );
+
+
+      // si NO existe cover físico
+      if (!coverFile) {
+
+        // usa la primera canción del álbum
+        const firstSongPath = path.join(
+          albumPath,
+          files[0]
+        );
+
+        const firstSongMetadata =
+          await parseFile(firstSongPath);
+
+        const picture =
+          firstSongMetadata.common.picture?.[0];
+
+        // si el mp3 tiene portada embebida
+        if (picture) {
+
+          // extensión según formato
+          let extension = "jpg";
+
+          if (picture.format.includes("png")) {
+            extension = "png";
+          }
+
+          if (picture.format.includes("webp")) {
+            extension = "webp";
+          }
+
+          coverFile = `cover.${extension}`;
+
+          // guarda el cover automáticamente
+          fs.writeFileSync(
+            path.join(albumPath, coverFile),
+            picture.data
+          );
+        }
+      }
+
+
+      // ruta final cover
+      const coverPath = coverFile
+        ? `/music/${category}/${artistFolder}/${albumFolder}/${coverFile}`
+        : "/default-cover.jpg";
+
+
+
+      // metadata primera canción
+      const firstSong = await parseFile(
+        path.join(albumPath, files[0])
+      );
+
+      playlists.push({
+        id: albumId.toString(),
 
         albumId,
 
         title:
-          metadata.common.title ||
-          path.parse(file).name,
+          firstSong.common.album ||
+          albumFolder,
 
-        image: `/covers/${albumId}.jpg`,
+        cover: coverPath,
 
         artists:
-          metadata.common.artists || [],
-
-        album:
-          metadata.common.album || folder,
-
-        duration:
-          Math.floor(metadata.format.duration / 60)
-          + ":" +
-          String(
-            Math.floor(metadata.format.duration % 60)
-          ).padStart(2, "0"),
-
-        // ruta completa del mp3
-        audio: `${category}/${folder}/${file}`
+          firstSong.common.artists ||
+          [artistFolder],
       });
 
-      songId++;
-    }
+      let songId = 1;
 
-    albumId++;
+      for (const file of files) {
+
+        const filePath = path.join(
+          albumPath,
+          file
+        );
+
+        const metadata = await parseFile(
+          filePath
+        );
+
+        const durationSeconds =
+          metadata.format.duration || 0;
+
+        const minutes =
+          Math.floor(durationSeconds / 60);
+
+        const seconds =
+          Math.floor(durationSeconds % 60)
+            .toString()
+            .padStart(2, "0");
+
+        songs.push({
+
+          id: songId,
+
+          albumId,
+
+          title:
+            metadata.common.title ||
+            path.parse(file).name,
+
+          image: coverPath,
+
+          artists:
+            metadata.common.artists ||
+            [artistFolder],
+
+          album:
+            metadata.common.album ||
+            albumFolder,
+
+          duration:
+            `${minutes}:${seconds}`,
+
+          audio:
+            `/music/${category}/${artistFolder}/${albumFolder}/${file}`,
+        });
+
+        songId++;
+      }
+
+      albumId++;
+    }
   }
 }
 
@@ -102,3 +197,4 @@ export const songs = ${JSON.stringify(songs, null, 2)
 fs.writeFileSync(OUTPUT, content);
 
 console.log("music.ts generado");
+

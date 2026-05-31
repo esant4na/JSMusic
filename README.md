@@ -68,3 +68,11 @@ La carpeta `public/music/private` no se incluye en el repositorio debido a copyr
 ## Créditos
 
 Proyecto inspirado inicialmente en un tutorial y posteriormente expandido con funcionalidades propias.
+
+## 🎵 Vista Principal
+
+![Vista Principal](src/assets/screenshots/home.png)
+
+## 💿 Vista de Álbum
+
+![Álbum](src/assets/screenshots/album.png)

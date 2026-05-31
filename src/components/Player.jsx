@@ -258,7 +258,7 @@ export function Player() {
         if (song) {
 
             // Construye ruta del mp3.
-            const src = `/music/${song?.audio}`
+            const src = `${song?.audio}`
 
             // Cambia audio.
             audioRef.current.src = src

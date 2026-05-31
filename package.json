@@ -3,8 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "node src/scripts/generateMusic.js && astro dev",
-    "build": "node src/scripts/generateMusic.js && astro build",
+    "dev": "node src/lib/generateMusic.js && astro dev",
+    "build": "node src/lib/generateMusic.js && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
